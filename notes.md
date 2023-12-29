@@ -9,3 +9,4 @@ every object that is inherited for Object3d will have above 4 properties, exampl
 
 what is Vector3
 what is Euler
+what is OrthographicCamera

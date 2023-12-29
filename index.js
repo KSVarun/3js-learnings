@@ -1,8 +1,19 @@
 import * as THREE from 'three';
-import gsap from 'gsap';
+// import gsap from 'gsap';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+console.log(OrbitControls);
 
 const canvas = document.querySelector('#webgl');
 const sizes = { width: 800, height: 600 };
+const mouse = {
+  x: 0,
+  y: 0,
+};
+window.addEventListener('mousemove', (e) => {
+  mouse.x = e.clientX / sizes.width - 0.5;
+  mouse.y = -(e.clientY / sizes.height - 0.5);
+});
 
 //scene
 const scene = new THREE.Scene();
@@ -70,10 +81,13 @@ scene.add(camera);
 //renderer
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(sizes.width, sizes.height);
-console.log(gsap);
-gsap.to(mesh1.position, { duration: 1, delay: 1, x: 2 });
-gsap.to(mesh1.position, { duration: 1, delay: 2, x: 0 });
+// console.log(gsap);
+// gsap.to(mesh1.position, { duration: 1, delay: 1, x: 2 });
+// gsap.to(mesh1.position, { duration: 1, delay: 2, x: 0 });
 
+//controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
 //since the frame rate is different for different computers we need to normalise it
 // let time = Date.now();
 // const clock = new THREE.Clock();
@@ -89,8 +103,18 @@ gsap.to(mesh1.position, { duration: 1, delay: 2, x: 0 });
   //   mesh1.rotation.y = elapsedTime;
   //   mesh1.position.x = Math.sin(elapsedTime);
   //   mesh1.position.y = Math.cos(elapsedTime);
+  //   camera.position.x = mouse.x * 10;
+  //   camera.position.y = mouse.y * 10;
+
+  //to see back of the camera
+  //   camera.position.x = Math.sin(mouse.x * Math.PI * 2) * 3;
+  //   camera.position.z = Math.cos(mouse.x * Math.PI * 2) * 3;
   //when camera is rotating and we use lookat it does not cause any difference when there is only on object
-  //   camera.lookAt(mesh1.position);
+  camera.lookAt(mesh1.position);
+
+  //update controls
+  controls.update();
+
   renderer.render(scene, camera);
   window.requestAnimationFrame(tick);
 })();
