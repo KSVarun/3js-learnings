@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { BufferGeometry } from 'three';
 // import gsap from 'gsap';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -61,16 +62,28 @@ const scene = new THREE.Scene();
 
 //group
 // const group = new THREE.Group();
+// const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2);
+const geometry = new BufferGeometry();
+const count = 50;
+const floatArray = new Float32Array(count * 3 * 3);
+
+for (let i = 0; i < count * 3 * 3; i++) {
+  floatArray[i] = (Math.random() - 0.5) * 1;
+}
+
+const positionAttr = new THREE.BufferAttribute(floatArray, 3);
+geometry.setAttribute('position', positionAttr);
+
 const mesh1 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: '#fff' })
+  geometry,
+  new THREE.MeshBasicMaterial({ color: '#fff', wireframe: true })
 );
-const mesh2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: '#fffaaa' })
-);
+// const mesh2 = new THREE.Mesh(
+//   new THREE.BoxGeometry(1, 1, 1),
+//   new THREE.MeshBasicMaterial({ color: '#fffaaa' })
+// );
 mesh1.position.set(0, 0, 0);
-mesh2.position.set(0.75, 0, 1);
+// mesh2.position.set(0.75, 0, 1);
 // group.add(mesh1);
 // group.add(mesh2);
 scene.add(mesh1);
