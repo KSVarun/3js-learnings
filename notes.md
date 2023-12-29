@@ -12,3 +12,4 @@ what is Euler
 what is OrthographicCamera
 what is document.fullscreenElement
 what are the different types of geometry available
+how to handle key press combinations in js, for ex shift+h

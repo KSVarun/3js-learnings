@@ -1,14 +1,35 @@
 import * as THREE from 'three';
 import { BufferGeometry } from 'three';
-// import gsap from 'gsap';
+import gsap from 'gsap';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import GUI from 'lil-gui';
 
+//add gui/debug ui as and when new properties are add to the project, waiting till the end is not recommended
+const gui = new GUI({
+  width: 400,
+  title: 'debug ui',
+  closeFolders: true,
+});
 const canvas = document.querySelector('#webgl');
 const sizes = { width: window.innerWidth, height: window.innerHeight };
 const mouse = {
   x: 0,
   y: 0,
 };
+const debug = {
+  color: '#fff',
+  //we can have different segments like widht, height and depth but it's better to have same
+  //number of segments for all three width, height and depth
+  segments: {
+    subdivision: 1,
+  },
+};
+window.addEventListener('keydown', (e) => {
+  console.log(e.key);
+  if (e.key === 'h') {
+    gui.show(gui._hidden);
+  }
+});
 window.addEventListener('mousemove', (e) => {
   mouse.x = e.clientX / sizes.width - 0.5;
   mouse.y = -(e.clientY / sizes.height - 0.5);
@@ -23,29 +44,30 @@ window.addEventListener('resize', () => {
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
-window.addEventListener('dblclick', () => {
-  const fullScreen =
-    document.fullscreenElement || document.webkitFullscreenElement;
-  if (!fullScreen) {
-    if (canvas.requestFullscreen) {
-      canvas.requestFullscreen();
-      return;
-    }
-    if (canvas.webkitRequestFullscreen) {
-      canvas.webkitRequestFullscreen();
-      return;
-    }
-    return;
-  }
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-    return;
-  }
-  if (document.webkitExitFullscreen) {
-    document.webkitExitFullscreen();
-    return;
-  }
-});
+
+// window.addEventListener('dblclick', () => {
+//   const fullScreen =
+//     document.fullscreenElement || document.webkitFullscreenElement;
+//   if (!fullScreen) {
+//     if (canvas.requestFullscreen) {
+//       canvas.requestFullscreen();
+//       return;
+//     }
+//     if (canvas.webkitRequestFullscreen) {
+//       canvas.webkitRequestFullscreen();
+//       return;
+//     }
+//     return;
+//   }
+//   if (document.exitFullscreen) {
+//     document.exitFullscreen();
+//     return;
+//   }
+//   if (document.webkitExitFullscreen) {
+//     document.webkitExitFullscreen();
+//     return;
+//   }
+// });
 
 //scene
 const scene = new THREE.Scene();
@@ -62,22 +84,27 @@ const scene = new THREE.Scene();
 
 //group
 // const group = new THREE.Group();
-// const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2);
-const geometry = new BufferGeometry();
-const count = 50;
-const floatArray = new Float32Array(count * 3 * 3);
-
-for (let i = 0; i < count * 3 * 3; i++) {
-  floatArray[i] = (Math.random() - 0.5) * 1;
-}
-
-const positionAttr = new THREE.BufferAttribute(floatArray, 3);
-geometry.setAttribute('position', positionAttr);
-
-const mesh1 = new THREE.Mesh(
-  geometry,
-  new THREE.MeshBasicMaterial({ color: '#fff', wireframe: true })
+const geometry = new THREE.BoxGeometry(
+  1,
+  1,
+  1,
+  debug.segments.subdivision,
+  debug.segments.subdivision,
+  debug.segments.subdivision
 );
+const material = new THREE.MeshBasicMaterial({ color: debug.color });
+// const geometry = new BufferGeometry();
+// const count = 50;
+// const floatArray = new Float32Array(count * 3 * 3);
+
+// for (let i = 0; i < count * 3 * 3; i++) {
+//   floatArray[i] = (Math.random() - 0.5) * 1;
+// }
+
+// const positionAttr = new THREE.BufferAttribute(floatArray, 3);
+// geometry.setAttribute('position', positionAttr);
+
+const mesh1 = new THREE.Mesh(geometry, material);
 // const mesh2 = new THREE.Mesh(
 //   new THREE.BoxGeometry(1, 1, 1),
 //   new THREE.MeshBasicMaterial({ color: '#fffaaa' })
@@ -88,6 +115,41 @@ mesh1.position.set(0, 0, 0);
 // group.add(mesh2);
 scene.add(mesh1);
 // scene.add(mesh2);
+
+//debug ui
+const cube = gui.addFolder('cube');
+cube.add(mesh1.position, 'y').min(-3).max(3).step(0.5).name('elevation');
+cube.add(material, 'wireframe');
+cube.add(mesh1, 'visible');
+cube.addColor(debug, 'color').onChange((v) => {
+  material.color.set(debug.color);
+});
+debug.spin = () => {
+  if (mesh1.rotation._y > 0) {
+    gsap.to(mesh1.rotation, { y: 0 });
+    return;
+  }
+  gsap.to(mesh1.rotation, { y: 1 * Math.PI * 2 });
+};
+cube.add(debug, 'spin');
+cube
+  .add(debug.segments, 'subdivision')
+  .min(1)
+  .max(4)
+  .step(1)
+  .onFinishChange(() => {
+    //disposing the older geometry to avoid memory leaks
+    mesh1.geometry.dispose();
+    mesh1.geometry = new THREE.BoxGeometry(
+      1,
+      1,
+      1,
+      debug.segments.subdivision,
+      debug.segments.subdivision,
+      debug.segments.subdivision
+    );
+  })
+  .name('subdivisions');
 
 //AxesHelper adds three co-ordinate lines to the origin of the scene
 // const axisHelper = new THREE.AxesHelper();
