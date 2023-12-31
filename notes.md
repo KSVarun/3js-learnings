@@ -13,3 +13,12 @@ what is OrthographicCamera
 what is document.fullscreenElement
 what are the different types of geometry available
 how to handle key press combinations in js, for ex shift+h
+
+Textures used as map and matcap are supposed to be encoded in sRGB.
+
+In the latest versions of Three.js we need to specify it by setting their colorSpace to THREE.SRGBColorSpace:
+
+const texture = new THREE.Texture(image)
+texture.colorSpace = THREE.SRGBColorSpace
+
+what is uv coordinates

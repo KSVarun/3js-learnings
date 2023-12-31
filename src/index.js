@@ -45,6 +45,37 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+//textures
+const loadingManager = new THREE.LoadingManager();
+loadingManager.onStart = () => {
+  console.log('on start');
+};
+loadingManager.onProgress = () => {
+  console.log('on progress');
+};
+loadingManager.onLoad = () => {
+  console.log('on load');
+};
+loadingManager.onError = () => {
+  console.log('on error');
+};
+const textureLoader = new THREE.TextureLoader(loadingManager);
+//these textures can be found online
+const texture = textureLoader.load('/textures/checkerboard-8x8.png');
+
+//filter mag and min are used to generate crisp and sharp images for objects that are blury,
+//for a smaller object that is near we should use magFilter,
+//for a larger object that is far we should use minFilter
+
+// texture.magFilter = THREE.NearestFilter;
+
+//if we are using NearestFilter on minFilter then we can turn of mipmaps
+// texture.minFilter = THREE.NearestFilter;
+// texture.generateMipmaps = false;
+
+texture.colorSpace = THREE.SRGBColorSpace;
+texture.mid;
+
 // window.addEventListener('dblclick', () => {
 //   const fullScreen =
 //     document.fullscreenElement || document.webkitFullscreenElement;
@@ -92,7 +123,7 @@ const geometry = new THREE.BoxGeometry(
   debug.segments.subdivision,
   debug.segments.subdivision
 );
-const material = new THREE.MeshBasicMaterial({ color: debug.color });
+const material = new THREE.MeshBasicMaterial({ map: texture });
 // const geometry = new BufferGeometry();
 // const count = 50;
 // const floatArray = new Float32Array(count * 3 * 3);
